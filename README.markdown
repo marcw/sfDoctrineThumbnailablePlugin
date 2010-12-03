@@ -19,19 +19,21 @@ New options format
           fields:
             cover:
               formats:
-                homepage: 50x50
+                homepage:
+                  size:   50x50
+                  crop:   true
                 default: homepage
             side:
       columns:
         cover: { type: string(255) }
         side: { type: string(255) }
-    
+
 
 Overview
 --------
 sfDoctrineThumbnailablePlugin is a symfony plugin aiming to ease thumbnail
 management for your doctrine models. It takes advantage of (and therefore,
-depends on) the sfThumbnailPlugin.
+depends on) sfImageTransformPlugin.
 
 Configuring your models
 -----------------------
@@ -125,12 +127,18 @@ Well you can define default fields and default formats:
           fields:
             image:
               formats:
-                homepage: 50x50
-                body: 300x300
+                homepage:
+                  size:   50x50
+                  crop:   true
+                body:
+                  size:   300x300
+                  crop:   false
                 default: body
             alternate:
               formats:
-                homepage: 50x50
+                homepage:
+                  size:   50x50
+                  crop:   true
       columns:
         image: { type: string(255) }
         alternate: { type: string(255) }
@@ -171,9 +179,13 @@ absolute file path to the picture file.
           fields:
             image:
               formats:
-                homepage: 50x50
-                body: 300x300
-                default: body
+                homepage:
+                  size:   50x50
+                  crop:   false
+                body:
+                  size:   300x300
+                  crop:   false
+                default:  body
             alternate:
               formats:
                 homepage: 50x50
