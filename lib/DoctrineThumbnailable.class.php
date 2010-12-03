@@ -19,16 +19,17 @@ class Thumbnailable extends Doctrine_Template
    */
 
   protected $options = array(
-    'config_key'         => null,
-    'thumb_dir'          => '%s/thumbnails',
-    'path_method'        => null,
-    'keep_original'      => true,
-    'on_demand'          => true,
-    'on_save'            => true,
-    'strict'             => false,
-    'fail_silently'      => false,
-    'path_to_url_method' => array('Thumbnailable', 'pathToUrl'),
-    'fields'             => array(),
+    'config_key'             => null,
+    'thumb_dir'              => '%s/thumbnails',
+    'path_method'            => null,
+    'keep_original'          => true,
+    'on_demand'              => true,
+    'on_save'                => true,
+    'strict'                 => false,
+    'fail_silently'          => false,
+    'crop_square_thumbnails' => false,
+    'path_to_url_method'     => array('Thumbnailable', 'pathToUrl'),
+    'fields'                 => array(),
   );
 
   /**
@@ -64,9 +65,9 @@ class Thumbnailable extends Doctrine_Template
 
   public function __construct(array $options = array())
   {
-    if (!class_exists('sfThumbnail'))
+    if (!class_exists('sfImage'))
     {
-      throw new sfException('You need the sfThumbnailPlugin installed to use this template');
+      throw new sfException('You need the sfImageTransformPlugin installed to use this template');
     }
 
     $app_config = array();
@@ -262,8 +263,17 @@ class Thumbnailable extends Doctrine_Template
   public function createThumbnail($field, $format)
   {
     list($width, $height) = explode('x', $format);
-    $thumbnail = new sfThumbnail($width, $height);
-    $thumbnail->loadFile($this->getFilePath($field));
+
+    $image = new sfImage($this->getFilePath($field));
+
+    if ($this->options['crop_square_thumbnails'] && $width == $height)
+    {
+      $image = $image->resizeSmallestSideAndCrop($width, $height);
+    }
+    else
+    {
+      $image = $image->resizeSimple($width, $height);
+    }
 
     $thumbnail_path = $this->getThumbnailPath($field, $format);
     $thumbnail_dir  = dirname($thumbnail_path);
@@ -275,7 +285,8 @@ class Thumbnailable extends Doctrine_Template
         throw new sfException(sprintf('Could not create directory "%s"', $thumbnail_dir));
       }
     }
-    return $thumbnail->save($thumbnail_path);
+
+    return $image->save($thumbnail_path);
   }
 
   /**
@@ -297,7 +308,7 @@ class Thumbnailable extends Doctrine_Template
           {
             continue;
           }
-          
+
           $this->createThumbnail($field, $format);
         }
       }
