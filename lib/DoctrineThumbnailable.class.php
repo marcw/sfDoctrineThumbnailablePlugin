@@ -286,7 +286,9 @@ class Thumbnailable extends Doctrine_Template
       }
     }
 
-    return $image->save($thumbnail_path);
+    $image->saveAs($thumbnail_path);
+
+    return $thumbnail_path;
   }
 
   /**
