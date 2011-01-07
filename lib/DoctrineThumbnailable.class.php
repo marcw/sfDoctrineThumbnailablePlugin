@@ -186,7 +186,10 @@ class Thumbnailable extends Doctrine_Template
   {
     $image_path = $this->getFilePath($field);
     $thumb_dir  = sprintf($this->getOption('thumb_dir', $field), dirname($image_path));
-    $thumb_path = sprintf('%s/%s_%s', $thumb_dir, $format, basename($image_path));
+
+    $extension = '.'.$this->getExtension($image_path);
+
+    $thumb_path = sprintf('%s/%s_%s%s', $thumb_dir, basename($image_path, $extension), $format, $extension);
 
     return $thumb_path;
   }
@@ -403,7 +406,7 @@ class Thumbnailable extends Doctrine_Template
 
     return array($field, $format);
   }
-  
+
   /**
    * Convenience method until thumbs delete on object delete
    * is ready
@@ -411,11 +414,10 @@ class Thumbnailable extends Doctrine_Template
    * @deprecated
    * @return array
    */
-
   public function getThumbnailsList()
   {
     list($field) = $this->guessArguments(func_get_args());
-    $filePath    = $this->getFilePath($field); 
+    $filePath    = $this->getFilePath($field);
     $thumbsDir   = dirname($filePath);
 
     if (substr($thumbsDir, strlen($thumbsDir) - 1, 1) != DIRECTORY_SEPARATOR)
@@ -424,8 +426,9 @@ class Thumbnailable extends Doctrine_Template
     }
 
     $thumbsDir .= $this->getOption('thumb_dir', $field);
+    $baseName   = basename($filePath, '.'.$this->getExtension($filePath));
 
-    return glob($thumbsDir.'/*_'.basename($filePath));
+    return glob( sprintf($thumbsDir.'_*', $baseName));
   }
 
   /**
@@ -444,14 +447,27 @@ class Thumbnailable extends Doctrine_Template
     {
       return sfConfig::get('sf_upload_dir').'/'.$this->getInvoker()->get($field);
     }
-    
+
     $method = sprintf($path_method, Doctrine_Inflector::classify($field));
 
     if (!method_exists($object, $method))
     {
       throw new sfException(sprintf('Object of class "%s" does not implement a "%s()" method', get_class($object), $method));
     }
-      
-    return $object->$method(); 
+
+    return $object->$method();
+  }
+
+  /**
+   * getExtension
+   *
+   * @param string $filename
+   * @return string
+   */
+  protected function getExtension($filename)
+  {
+    $parts = explode('.', $filename);
+
+    return array_pop($parts);
   }
 }
