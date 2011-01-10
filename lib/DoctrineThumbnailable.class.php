@@ -303,7 +303,7 @@ class Thumbnailable extends Doctrine_Template
 
   public function createOnSaveThumbnails()
   {
-    foreach($this->getOptions('fields') as $field => $config)
+    foreach ($this->getOption('fields') as $field => $config)
     {
       if ($this->getOption('on_save', $field) && $this->hasFormats($field))
       {
