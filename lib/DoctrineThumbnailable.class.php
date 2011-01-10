@@ -267,6 +267,11 @@ class Thumbnailable extends Doctrine_Template
   {
     list($width, $height) = explode('x', $format);
 
+    if (!is_readable($this->getFilePath($field)))
+    {
+      return;
+    }
+
     $image = new sfImage($this->getFilePath($field));
 
     if ($this->options['crop_square_thumbnails'] && $width == $height)
